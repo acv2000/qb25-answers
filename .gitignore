@@ -1,2 +1,5 @@
 .DS_Store
-
+miniproject-assembly-metrics/__pycache__/
+miniproject-assembly-metrics/caenorhabditis_remanei.PRJNA248909.WBPS19.genomic.fa
+miniproject-assembly-metrics/fasta.py
+untracked	
