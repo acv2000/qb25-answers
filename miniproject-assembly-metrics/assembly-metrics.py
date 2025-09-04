@@ -6,9 +6,14 @@ import fasta
 my_file = open( sys.argv[1] )
 contigs = fasta.FASTAReader(my_file)
 
-for contig in contigs: 
-    print(contig[0])
+i = 0 
+length = 0 
 
-# for ident, sequence in assemblies:
-#     print( f"Name: {ident}" )
-#     print(f”First 20 nucleotides: {sequence[:20]}")
+for ident, sequence in contigs: 
+    length = int(length + len(sequence))
+    i = int(i + 1)
+avg_length = length/i 
+    
+print(f"Name: {ident}\tNumber of Contigs: {i}\tTotal length: {length}\tAverage length: {avg_length}")
+
+
