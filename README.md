@@ -1,5 +1,3 @@
 # QB25 Answers 
-
-I'm feeling tired about Quantitative Biology...
-
-![](https://bioart.niaid.nih.gov/api/bioarts/629/files/660893)
+* python-commands.py = Day 2 afternoon assignment #2
+* 
