@@ -7,7 +7,7 @@ my_file = open( sys.argv[1] )
 for line in my_file: 
     column = line.strip("\n") 
     column2 = column.split("\t")
-    original_score = int(column2[4])-co
+    original_score = int(column2[4])
     start = int(column2[1])
     end = int(column2[2])
     new_score = original_score*(end - start)

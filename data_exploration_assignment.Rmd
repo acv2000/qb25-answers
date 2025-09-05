@@ -1,0 +1,171 @@
+In this exercise, you will practice basic `dplyr` (the relevant package within `tidyverse`) operations on a dataset of gene expression levels across human tissues (from the GTEx Project). The dataset (`dt`) has one row per gene, with columns:
+
+-   `Name`: the Ensembl gene ID\
+-   `Description`: the gene symbol
+-   One column per tissue containing the median expression levels (in TPM units)
+
+------------------------------------------------------------------------
+
+### Start by loading the data into R:
+
+Note the arguments, which specify that the first two lines of the file will be skipped, that the file contains a header line that should be used to form column names, and that the columns are tab (`\t`) separated.
+
+```{r}
+library(tidyverse)
+dt <- read_delim("~/Data/GTEx/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz", skip = 2, col_names = TRUE, delim = "\t")
+head(dt, n = 5)
+```
+
+### Q1. How many genes are in the dataset, and how many tissues are represented?
+
+```{r}
+num_rows <- nrow(dt)
+print(num_rows)
+# 56200 genes in this dataset 
+col_names <- colnames(dt[,3:length(dt)])
+tissues <- length(col_names)
+print(tissues)
+# 54
+```
+
+------------------------------------------------------------------------
+
+### Q2. How many genes are expressed above a given threshold in each tissue?
+
+A common threshold is 1 TPM to define whether a gene is "expressed."\
+Compute, for each of the three tissues, `Liver`, `Testis`, and `Whole Blood`, how many genes are expressed above this threshold.\
+Then identify which tissue has the **most** and which has the **fewest** expressed genes. See this paper for one possible explanation: Xia et al. 2021: [PMC7891839](https://pmc.ncbi.nlm.nih.gov/articles/PMC7891839/).
+
+Do the results change if you set the threshold higher, say at 10 TPM?
+
+```{r}
+genes_tissue <- dt %>%
+  select(`Whole Blood`) 
+filtered_genes_tissue <- genes_tissue[genes_tissue > 1 ]
+above_thresh = length(filtered_genes_tissue)
+print(above_thresh)
+
+# Liver --> 13499 
+# Testis --> 25064
+# Whole Blood --> 11616
+# The Testis have the highest amount of expressed genes and Whole Blood has the lowest amount of expressed genes 
+
+genes_tissue <- dt %>%
+  select(Testis) 
+filtered_genes_tissue <- genes_tissue[genes_tissue > 10 ]
+above_thresh = length(filtered_genes_tissue)
+print(above_thresh)
+
+# Liver --> 5132
+# Testis --> 11471
+# Whole Blood --> 4482
+# The Testis also have the highest amount of highly expressed genes and Whole Blood also has the lowest amount of these highly expressed genes 
+```
+
+------------------------------------------------------------------------
+
+### Q3. What are the 20 most highly expressed genes in the liver?
+
+What do you notice about many of the genes in this list? Can you propose a hypothesis to explain your observation?
+
+```{r}
+genes_liver <- dt %>%
+  select(Description, Liver)
+genes_liver_sorted <- genes_liver %>%
+   arrange(desc(Liver))
+liver_topgenes <- head(genes_liver_sorted$Description, 20)
+
+# MT-ND4, MT-ATP6, MT-CO2, MT-CO3, MT-CO1, MT-CYB, MT-ATP8, MT-ND4L, ALB, MT-ND2, MT-ND1, MT-ND3, MT-RNR2, HP, AA1, ORM1, FTL, APOC3, FGB, & MT-ND5
+# There are a lot of mitochondrial genes highly expressed in the liver, which makes sense since ROS are generated during the liver's detoxification processes. 
+
+```
+
+------------------------------------------------------------------------
+
+### Q4. Compare the mean expression levels of mitochondrial versus nuclear-encoded genes in the Liver.
+
+Genes encoded by the mitochondrial genome have the gene symbol prefix `MT-`. The function `str_starts()` from the `stringr` package in `tidyverse` tests whether a string (or a vector of strings) start with a given pattern, returning TRUE/FALSE (or a boolean vector) as output.
+
+Use `str_starts()` to identify which genes are mitochondrially encoded and store this information in a new Boolean column named `is_mitochondrial`. Next, compute the mean and median expression of mitochondrial genes in the liver, as well as the mean and median expression of nuclear-encoded genes in the liver and compare them. Do mitochondrial genes exhibit higher or lower mean and median expression than nuclear genes? What does the difference between the mean and median tell you about the distribution of gene expression.
+
+```{r}
+mitochondrial_genes <- str_starts(genes_liver$Description, pattern = "MT")
+genes_liver <- genes_liver %>%
+  mutate(is_mitochondrial = mitochondrial_genes)
+mito_genes = genes_liver %>%
+   filter(is_mitochondrial == TRUE)
+nucl_genes = genes_liver %>%
+   filter(is_mitochondrial == FALSE)
+mean(mito_genes$Liver)
+mean(nucl_genes$Liver)
+median(mito_genes$Liver)
+median(nucl_genes$Liver)
+
+# The mean expression of mitochondrial genes is 803.3853 & of nuclear genes is 8.23295
+# The median expression of mitochondrial and nuclear genes is 0 
+# This tells us that there is a large number of genes on the list that are not at all expressed in the liver.
+```
+
+------------------------------------------------------------------------
+
+### Q5. Are liver’s most highly expressed genes also highly expressed in another tissue?
+
+Take the 20 most highly exprssed genes in **Liver** and check how they are expressed in the **Heart - Left Ventricle**. Identify:\
+1. one gene that is highly expressed in both tissues\
+2. one gene that is highly expressed in Liver but very low in Heart
+
+Look up basic information about these genes on the internet. Do their expression patterns make sense given their known functions?
+
+```{r}
+genes_leftvent <- dt %>%
+  select(Description, `Heart - Left Ventricle`)
+head(genes_leftvent, n=10)
+livergenes_leftvent <- genes_leftvent %>%
+   filter(Description %in% liver_topgenes)
+livergenes_leftvent_sorted <- livergenes_leftvent %>%
+   arrange(desc(`Heart - Left Ventricle`))
+livergenes_leftvent_sorted <- livergenes_leftvent %>%
+   arrange(`Heart - Left Ventricle`)
+livergenes_leftvent_sorted 
+
+# 1. One gene that is highly expressed in both tissues is MT-CO1
+# 2. One gene that is highly expressed in the Liver and not in the Left Ventricle is FGB
+```
+
+------------------------------------------------------------------------
+
+### Q6. Comparing gene expression between tissues
+
+Another way to compare tissues is to ask how similar are their expression patterns overall, across all genes?
+
+R has a built-in function called `cor.test()` that measures the correlation between two vectors of numbers. Remember that you can extract the contents of a given column of a tibble as a vector using the syntax `tibble_name$column_name`. If a column name contains spaces, enclose the column name in backticks such as `` tibble_name$`column name` ``.
+
+Use `cor.test()` with the argument `method = "kendall"` to compute: - the Spearman correlation between `Liver` and `Heart - Left Ventricle` - the Spearman correlation between `Liver` and `Brian - Cortex`
+
+Which pair of tissues is more strongly correlated? Does this result make sense biologically?
+
+```{r}
+# Liver vs Heart answer
+liver <- dt$Liver
+heart_leftvent <- dt$`Heart - Left Ventricle`
+print(cor.test(liver, heart_leftvent, method = "kendall"))
+# tau = 0.8053218 
+
+# Liver vs Brain answer
+brain_cortex <- dt$`Brain - Cortex`
+print(cor.test(liver, brain_cortex, method = "kendall"))
+# tau = 0.7342544 
+
+# Interpretation 
+# Both surprisingly have a rather high correlation coefficient which is reflective of the strong pressence of houskeeping gene expression data in all three tissues. There is a stronger correlation between the heart and liver, which might be reflective of the fact that both organs are strongly involved in the circulatory system. 
+```
+
+------------------------------------------------------------------------
+
+### Optional: further exploration
+
+What other patterns are present in the data? Use tidyverse functions to explore and summarize the data in different ways and see what you can learn.
+
+```{r}
+# answer here
+```
