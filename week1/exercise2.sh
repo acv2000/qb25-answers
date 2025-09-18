@@ -17,4 +17,3 @@ bedtools intersect -v -a hg16-kc.bed -b hg19-kc.bed > hg16-unique.bed
 wc -l hg16-unique.bed
 # 3460 genes in hg19 but not in hg16 
 # Some genes are in hg16 and not in hg19 because upon updating the assembly and annotations some duplications, and sequencing aritifacts for example were probably removed. 
-
