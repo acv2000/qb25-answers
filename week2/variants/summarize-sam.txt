@@ -1,0 +1,35 @@
+chrI: 8935 reads
+*: 3135 reads
+chrVIII: 32411 reads
+chrXV: 65696 reads
+chrVII: 67253 reads
+chrII: 48852 reads
+chrX: 44133 reads
+chrXII: 66342 reads
+chrXIII: 56740 reads
+chrIV: 93309 reads
+chrIII: 19671 reads
+chrV: 33089 reads
+chrXI: 41299 reads
+chrXIV: 47048 reads
+chrVI: 12330 reads
+chrIX: 23597 reads
+chrXVI: 57075 reads
+chrM: 19152 reads
+
+NM tag counts (mismatch counts):
+0: 445155 reads
+1: 153707 reads
+2: 67877 reads
+3: 40737 reads
+4: 27141 reads
+5: 1420 reads
+6: 629 reads
+7: 254 reads
+8: 6 reads
+11: 1 reads
+12: 1 reads
+13: 1 reads
+17: 1 reads
+18: 1 reads
+22: 1 reads
