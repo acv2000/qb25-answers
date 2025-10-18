@@ -2,19 +2,20 @@ genotypes <- read.table("/Users/cmdb/qb25-answers/week3/gt_long.txt", header=TRU
 subset_data <- subset(genotypes, SampleID == "A01_62" & Chromosome == "chrII")
 subset_data$Genotype <- factor(subset_data$Genotype, levels = c("0", "1"))
 
-plot(as.numeric(subset_data$Position), 
-     as.numeric(subset_data$Genotype), 
-     col = subset_data$Genotype,
-     pch = 16,
-     xlab = "Position on chrII", 
-     ylab = "Genotype (0 = reference, 1 = wine)", 
-     main = "Ancestry of Sample A01_62 on chrII",
-     yaxt = "n")
-
-axis(2, at=c(0,1), labels=c("0", "1"))
+png("genotype_plot_chrII.png", width = 1000, height = 400)
+plot(
+  as.numeric(subset_data$Position), 
+  rep(1, nrow(subset_data)),  # All points on a single horizontal line
+  col = ifelse(subset_data$Genotype == 1, "red", "black"),
+  pch = 16,
+  xlab = "Position on chrII", 
+  ylab = "",
+  yaxt = "n",
+  main = "Ancestry of Sample A01_62 on chrII"
+)
 legend("topright", legend = c("Reference (0)", "Wine (1)"),
        col = c("black", "red"), pch = 16)
-
+dev.off()
 #3.3 
 #More central regions of chromosome II in this sample map to the reference genome while regions further from the center map to the other genome. This is indicative of the fact that recombination events are more common the further away you are from centromeres. 
 
