@@ -20,12 +20,11 @@ with open(vcf_file) as vcf, open(af_output, 'w') as af_out, open(dp_output, 'w')
                     af_out.write(f"{af}\n")
                 break
         sample_fields = fields[9:]
+    
         for sample in sample_fields:
             sample_values = sample.split(':')
             dp_values = sample_values[2]
-            for dp in dp_values:
-                dp_out.write(f"{dp}\n")
-            break
+            dp_out.write(f"{dp_values}\n")
             
             
 # 2.2 The histogram displays a somewhat normal distrubution with most allele frequencies around 0.4 this was surprising to me considering you would expect the hisotgram to skew to the left. 
