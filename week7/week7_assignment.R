@@ -1,4 +1,8 @@
 # Exercise 1: PCA analysis
+library(tidyr)
+library(dplyr)
+library(matrixStats)
+
 setwd("~/qb25-answers/week7")
 
 read_matrix <-read.delim("read_matrix.tsv", row.names = 1, check.names = FALSE)
@@ -16,7 +20,7 @@ colnames(expr_top500) <- col
 
 expr_t <- t(expr_top500)
 norm_expr_t = scale(expr_t)
-pca_expr <- prcomp(expr_t, center = TRUE, scale. = TRUE)
+pca_expr <- prcomp(expr_t, center = TRUE)
 summary(pca_expr)
 
 pca_df <- as_tibble(pca_expr$x[, 1:2], rownames = "Sample")
@@ -84,8 +88,8 @@ dev.off()
 
 # Exercise 3: Gene ontology enrichment analysis
 cluster3_genes <- rownames(sorted_data)[sorted_labels == 3]
-cluster7_genes <- rownames(sorted_data)[sorted_labels == 2]
+cluster2_genes <- rownames(sorted_data)[sorted_labels == 2]
 
 write.table(cluster3_genes, "cluster3_genes.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
-write.table(cluster7_genes, "cluster7_genes.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(cluster2_genes, "cluster2_genes.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
