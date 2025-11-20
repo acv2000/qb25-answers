@@ -8,15 +8,13 @@ setwd("~/qb25-answers/week7")
 read_matrix <-read.delim("read_matrix.tsv", row.names = 1, check.names = FALSE)
 read_matrix = as.matrix(read_matrix)
 
+# Fix mislabeled columns
+swap <- match(c("LFC-Fe_Rep3", "Fe_Rep1"), colnames(read_matrix))
+read_matrix[, swap] <- read_matrix[, rev(swap)]
+
 reads_sds <- rowSds(read_matrix)
 top500_vargene <- order(reads_sds, decreasing = TRUE)[1:500]
 expr_top500 <- read_matrix[top500_vargene, ]
-
-#Fix swapped labels
-col <- colnames(expr_top500)
-swap <- match(c("LFC-Fe_Rep3", "Fe_Rep1"), col)
-col[swap] <- col[rev(swap)]
-colnames(expr_top500) <- col
 
 expr_t <- t(expr_top500)
 norm_expr_t = scale(expr_t)
@@ -62,9 +60,9 @@ ggplot(bar_df, aes(x = PC, y = Variance)) +
 ggsave("PCA_variance.png", width = 6, height = 4)
 
 # Exercise 2: K-means clustering
-combined <- expr_top500[, seq(1, 21, 3)]
-combined <- combined + expr_top500[, seq(2, 21, 3)]
-combined <- combined + expr_top500[, seq(3, 21, 3)]
+combined <- read_matrix[, seq(1, 21, 3)]
+combined <- combined + read_matrix[, seq(2, 21, 3)]
+combined <- combined + read_matrix[, seq(3, 21, 3)]
 combined <- combined / 3
 
 gene_var_combined <- rowSds(combined)
